@@ -635,8 +635,14 @@ function updProjectiles(dt){
   auras=auras.filter(a=>!a.dead);
 }
 function arrowVsBoss(r){
-  const b=boss,dx=(r.x-b.x)/26,dy=(r.y-(b.y+3))/22;
-  const onEye=dx*dx+dy*dy<1,onBody=Math.hypot(r.x-b.x,r.y-(b.y-10))<62;
+  const b=boss,ex=b.x,ey=b.y+3;
+  const inEye=(x,y)=>{const dx=(x-ex)/30,dy=(y-ey)/25;return dx*dx+dy*dy<1;};
+  const onBody=Math.hypot(r.x-b.x,r.y-(b.y-10))<62;
+  let onEye=inEye(r.x,r.y);
+  if(!onEye&&onBody){
+    const sp=Math.hypot(r.vx,r.vy)||1,ux=r.vx/sp,uy=r.vy/sp;
+    for(let d=6;d<=54&&!onEye;d+=6)onEye=inEye(r.x+ux*d,r.y+uy*d);
+  }
   if(!onEye&&!onBody)return;
   r.dead=true;
   if(onEye&&b.state==='heal'){
